@@ -7,18 +7,20 @@ import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
 
 export const App = () => {
-  const [contacts, setContacts] = useState([]);
+  const [contacts, setContacts] = useState(() => {
+    return JSON.parse(localStorage.getItem('contacts')) ?? [];
+  });
   const [filter, setFilter] = useState('');
 
-  useEffect(() => {
-    const getStorageContacts = localStorage.getItem('contacts');
-    const storageContacts = JSON.parse(getStorageContacts);
-    if (storageContacts) setContacts(storageContacts);
-  }, []);
+  // useEffect(() => {
+  //   const getStorageContacts = localStorage.getItem('contacts');
+  //   const storageContacts = JSON.parse(getStorageContacts);
+  //   if (storageContacts) setContacts(storageContacts);
+  // }, []);
 
   useEffect(() => {
     const saveContacts = JSON.stringify(contacts);
-    contacts.length && localStorage.setItem('contacts', saveContacts);
+    localStorage.setItem('contacts', saveContacts);
   }, [contacts]);
 
   //  Додаємо обробник на форму при сабміті
@@ -58,9 +60,7 @@ export const App = () => {
   // Видалення контакту за id
 
   const handleDelete = id => {
-    const updatedContacts = contacts.filter(contact => contact.id !== id);
-    setContacts(updatedContacts);
-    console.log(updatedContacts);
+    setContacts(prev => prev.filter(contact => contact.id !== id));
   };
 
   return (
