@@ -9,7 +9,6 @@ import { Filter } from './Filter/Filter';
 export const App = () => {
   const [contacts, setContacts] = useState([]);
   const [filter, setFilter] = useState('');
-  const [filteredContacts, setFilteredContacts] = useState([]);
 
   useEffect(() => {
     const getStorageContacts = localStorage.getItem('contacts');
@@ -33,7 +32,6 @@ export const App = () => {
 
     // Шукаємо чи є у масиві контаків ім'я, яке вводить користувач
 
-    let updatedContacts;
     const newContactName = contacts.find(
       contact => contact.name.toLowerCase() === newContact.name.toLowerCase()
     );
@@ -41,38 +39,39 @@ export const App = () => {
     if (newContactName) {
       return alert(`${newContact.name} is already in contacts.`);
     } else {
-      updatedContacts = [...contacts, newContact];
-      setContacts(updatedContacts);
-      setFilter('');
+      setContacts(prev => [...prev, newContact]);
     }
   };
 
-  // Пошук користувача за ім'ям у збереженому масиві
-  //    і якщо є такий користувач, то формуємо новий масив
-
   const handleFindName = evt => {
     const { value } = evt.target;
-    const allFilteredContacts = contacts.filter(contact =>
-      contact.name.toLowerCase().includes(value.toLowerCase())
-    );
     setFilter(value);
-    setFilteredContacts(allFilteredContacts);
+  };
+
+  const searchName = () => {
+    const allFilteredContacts = filter.toLowerCase();
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(allFilteredContacts)
+    );
   };
 
   // Видалення контакту за id
 
   const handleDelete = id => {
-    setContacts(prev => prev.filter(contact => contact.id !== id));
+    const updatedContacts = contacts.filter(contact => contact.id !== id);
+    setContacts(updatedContacts);
+    console.log(updatedContacts);
   };
 
-  const allContacts = filter ? filteredContacts : contacts;
   return (
     <Wrapper>
       <h1>Phonebook</h1>
       <ContactForm onClickSubmit={handleSubmit} />
       <h2>Contacts</h2>
       <Filter onFindName={handleFindName} valueFilter={filter} />
-      <ContactList contacts={allContacts} onClickDelete={handleDelete} />
+      {contacts.length > 0 && (
+        <ContactList contacts={searchName()} onClickDelete={handleDelete} />
+      )}
     </Wrapper>
   );
 };
